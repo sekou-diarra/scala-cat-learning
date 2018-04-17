@@ -1,9 +1,16 @@
 /**
   * Created by bougadar on 07/07/17.
   */
+import cats.functor
+import javax.swing.Box
+
 trait Printable[A] {
+  self =>
   def format(value: A): String
+  def contramap[B](func:B => A):Printable[B] = (value: B) => self.format(func(value))
 }
+
+def format[A](value:A)(implicit p : Printable[A]) : String = p.format(value)
 
 object PrintableInstance {
   implicit val printableString = new Printable[String] {
@@ -13,6 +20,10 @@ object PrintableInstance {
   implicit val printableInt = new Printable[Int] {
     override def format(value: Int): String = value.toString
   }
+
+  implicit val booleanPrintable: Printable[Boolean] = (value: Boolean) => if (value) "yes" else "non"
+
+
 }
 
 
@@ -22,6 +33,8 @@ object Printable {
 
   def print[A](value: A)(implicit p: Printable[A]): Unit =
     println(p.format(value))
+
+
 }
 
 
@@ -39,8 +52,18 @@ object PrintableSyntax {
 
 }
 
+final case class Box[A](value: A)
 
 final case class Cat(name: String, age: Int, color: String)
+
+
+implicit def boxPrintable[A](implicit p: Printable[A])=
+  new Printable[Box[A]] {
+    override def format(box: Box[A]): String = p.format(box.value)
+  }
+
+implicit def boxPrintable[A](implicit p : Printable[A])
+                  = p.contramap[Box[A]](_.value)
 
 object Cat {
   import PrintableInstance._
