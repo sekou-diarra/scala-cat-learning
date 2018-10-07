@@ -43,5 +43,5 @@ object Cat{
 val cat1 = Cat("Garfield", 35, "orange and black")
 val cat2 = Cat("Heathcliff", 30, "orange and black")
 
-cat1 === cat2
+cat1 == cat2
 
